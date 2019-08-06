@@ -68,7 +68,7 @@ const isEmpty = string => {
   else return false;
 };
 
-// Signup route
+// SIGNUP Route
 app.post("/signUp", (req, res) => {
   const newUser = {
     email: req.body.email,
@@ -138,7 +138,40 @@ app.post("/signUp", (req, res) => {
           });
       }
     });
+});
 
+//LOGIN Route
+app.post("/login", (req, res) => {
+  const user = {
+    email: req.body.email,
+    password: req.body.password
+  };
+
+  let errors = {};
+
+  // check if email and password are empty, then return the error
+  if (isEmpty(user.email)) errors.email = "Must not be empty";
+  if (isEmpty(user.password)) errors.password = "Must not be empty";
+
+  if (Object.keys(errors).length > 0) return res.status(400).json(errors);
+
+  firebase
+    .auth()
+    .signInWithEmailAndPassword(user.email, user.password)
+    .then(data => data.user.getIdToken())
+    .then(token => res.json({ token }))
+    .catch(err => {
+      console.error(err);
+      if (err.code === "auth/wrong-password")
+        return res
+          .status(403)
+          .json({ general: "Wrong password, please try again!" });
+      else if (err.code === "auth/user-not-found")
+        return res
+          .status(403)
+          .json({ general: "Email not found, please try again!" });
+      else return res.status(500).json({ error: err.code });
+    });
 });
 
 // export api = route/api/...
