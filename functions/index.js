@@ -57,6 +57,17 @@ app.post("/scream", (req, res) => {
     });
 });
 
+const isEmail = email => {
+  const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  if (email.match(emailRegEx)) return true;
+  else return false;
+};
+
+const isEmpty = string => {
+  if (string.trim() === "") return true;
+  else return false;
+};
+
 // Signup route
 app.post("/signUp", (req, res) => {
   const newUser = {
@@ -66,7 +77,26 @@ app.post("/signUp", (req, res) => {
     handle: req.body.handle
   };
 
-  // TODO validate value
+  let errors = {};
+
+  //validate the registered email
+  if (isEmpty(newUser.email)) {
+    errors.email = "Must not be empty";
+  } else if (!isEmail(newUser.email)) {
+    errors.email = "Must be a valid email address ";
+  }
+
+  //validate the registered password
+  if (isEmpty(newUser.password)) errors.password = "Must not be empty";
+  if (newUser.password !== newUser.confirmPassword)
+    errors.password = "Passwords must match";
+
+  //validate the registered user
+  if (isEmpty(newUser.handle)) errors.handle = "Must not be empty";
+
+  // if valadation error, return the error.
+  if (Object.keys(errors).length > 0) return res.status(400).json(errors);
+
   let token, userId;
   db.doc(`/users/${newUser.handle}`)
     .get()
@@ -109,18 +139,6 @@ app.post("/signUp", (req, res) => {
       }
     });
 
-  //   firebase
-  //     .auth()
-  //     .createUserWithEmailAndPassword(newUser.email, newUser.password)
-  //     .then(data => {
-  //       return res
-  //         .status(201)
-  //         .json({ message: `user: ${data.user.uid} sign up successfully` });
-  //     })
-  //     .catch(error => {
-  //       console.error(error);
-  //       return res.status(500).json({ error: error.code });
-  //     });
 });
 
 // export api = route/api/...
