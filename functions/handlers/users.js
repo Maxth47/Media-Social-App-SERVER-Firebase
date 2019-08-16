@@ -4,8 +4,13 @@ const firebaseConfig = require("../util/firebaseConfig");
 const firebase = require("firebase");
 firebase.initializeApp(firebaseConfig);
 
-const { validateSignUpData, validateLogInData } = require("../util/validators");
+const {
+  validateSignUpData,
+  validateLogInData,
+  reduceUserDetails
+} = require("../util/validators");
 
+// Sign user up
 exports.signUp = (req, res) => {
   const newUser = {
     email: req.body.email,
@@ -65,6 +70,7 @@ exports.signUp = (req, res) => {
     });
 };
 
+//Log user in
 exports.logIn = (req, res) => {
   const user = {
     email: req.body.email,
@@ -95,34 +101,82 @@ exports.logIn = (req, res) => {
     });
 };
 
+// add user details
+exports.addUserDetails = (req, res) => {
+  let userDetails = reduceUserDetails(req.body);
+  db.doc(`/users/${req.user.handle}`)
+    .update(userDetails)
+    .then(() => {
+      return res.json({ message: "Details added successfully" });
+    })
+    .catch(err => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+
+// Get own user details
+exports.getAuthenticatedUser = (req, res) => {
+  let userData = {};
+  db.doc(`/users/${req.user.handle}`)
+    .get()
+    .then(doc => {
+      if (doc.exists) {
+        userData.credentials = doc.data();
+        return db
+          .collection("likes")
+          .where("userHandle", "==", req.user.handle)
+          .get();
+      }
+    })
+    .then(data => {
+      userData.likes = [];
+      data.forEach(doc => {
+        userData.likes.push(doc.data());
+      });
+      return res.json(userData);
+    })
+    .catch(err => {
+      console.error(err);
+      return res.status(500).json({ error: err.code });
+    });
+};
+
+// upload user image
 exports.uploadImage = (req, res) => {
   const Busboy = require("busboy");
   const path = require("path");
   const os = require("os");
-  const fs = require("fs");
+  const x = require("fs");
+
+  console.log("path", path);
 
   let imageFileName;
   let imageToBeUploaded = {};
 
   const busboy = new Busboy({ headers: req.headers });
   busboy.on("file", (fieldName, file, fileName, encoding, mimeType) => {
-    console.log(fieldName);
-    console.log(fileName);
-    console.log(mimeType);
-
+    // check if the type of file is not PNG or JPEG
     if (mimeType !== "image/png" && mimeType !== "image/jpeg") {
       return res.status(400).json({ message: "wrong file type submited" });
     }
+
+    //get the extension and create a new name
     imageExtension = fileName.split(".")[fileName.split(".").length - 1];
     const imageFileName = `${Math.round(
       Math.random() * 100000000000
     )}.${imageExtension}`;
+
+    // create a file path to upload
     const filePath = path.join(os.tmpdir(), imageFileName);
     imageToBeUploaded = { filePath, mimeType };
+
+    // opens up the writeable stream to `output`(filePath), then pipes the POST data to the file
     file.pipe(fs.createWriteStream(filePath));
   });
 
   busboy.on("finish", () => {
+    // upload the file to Firebase
     admin
       .storage()
       .bucket()
