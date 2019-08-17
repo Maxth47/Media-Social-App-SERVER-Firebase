@@ -7,7 +7,9 @@ const {
   getAllScreams,
   postOneScream,
   getScream,
-  commentOnScream
+  commentOnScream,
+  likeScream,
+  unlikeScream
 } = require("./handlers/screams");
 const FBAuth = require("./util/fbAuth"); // Firebase Authentication Midleware to check if user already logined by using idToken
 
@@ -15,10 +17,10 @@ app.get("/screams", getAllScreams); // get all database of screams and order by 
 app.post("/scream", FBAuth, postOneScream); // Route to post New scream
 app.get("/scream/:screamId", getScream); // Route to post New scream
 // TODO: delete a scream
-// TODO: like a scream
-// TODO: unlike a scream
-// TODO: comment on scream
-app.post("/scream/:screamId/comment", FBAuth, commentOnScream);
+app.get("/scream/:screamId/like", FBAuth, likeScream); // Route to like a scream
+app.get("/scream/:screamId/unlike", FBAuth, unlikeScream); // Route to unlike a scream
+
+app.post("/scream/:screamId/comment", FBAuth, commentOnScream); // Route to comment on scream
 
 // *** USER ROUTES:
 const {
