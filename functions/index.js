@@ -9,17 +9,17 @@ const {
   getScream,
   commentOnScream,
   likeScream,
-  unlikeScream
+  unlikeScream,
+  deleteScream
 } = require("./handlers/screams");
 const FBAuth = require("./util/fbAuth"); // Firebase Authentication Midleware to check if user already logined by using idToken
 
 app.get("/screams", getAllScreams); // get all database of screams and order by createdAt descendingly
 app.post("/scream", FBAuth, postOneScream); // Route to post New scream
 app.get("/scream/:screamId", getScream); // Route to post New scream
-// TODO: delete a scream
+app.delete("/scream/:screamId", FBAuth, deleteScream); // Route to delete a scream
 app.get("/scream/:screamId/like", FBAuth, likeScream); // Route to like a scream
 app.get("/scream/:screamId/unlike", FBAuth, unlikeScream); // Route to unlike a scream
-
 app.post("/scream/:screamId/comment", FBAuth, commentOnScream); // Route to comment on scream
 
 // *** USER ROUTES:
