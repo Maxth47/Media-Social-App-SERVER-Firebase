@@ -1,5 +1,6 @@
 const { db } = require("../util/admin");
 
+// get all screams
 exports.getAllScreams = (req, res) => {
   db.collection("screams")
     .orderBy("createdAt", "desc")
@@ -126,6 +127,7 @@ exports.likeScream = (req, res) => {
       } else return res.status(404).json({ error: "Scream not found" });
     })
     .then(data => {
+      console.error("data.empty ", data.empty);
       if (data.empty) {
         return db
           .collection("likes")

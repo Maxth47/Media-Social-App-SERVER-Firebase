@@ -27,6 +27,16 @@ let db = {
       body: "",
       createdAt: ""
     }
+  ],
+  notifications: [
+    {
+      recipient: "",
+      sender: "",
+      read: "",
+      screamId: "",
+      type: "",
+      createdAt: ""
+    }
   ]
 };
 
