@@ -63,7 +63,9 @@ exports.signUp = (req, res) => {
                 .status(400)
                 .json({ email: "this email is already in use" });
             } else {
-              return res.status(500).json({ error: err.code });
+              return res
+                .status(500)
+                .json({ general: "Something went wrong, please try again" });
             }
           });
       }

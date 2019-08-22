@@ -12,7 +12,8 @@ exports.getAllScreams = (req, res) => {
           screamId: doc.id,
           body: doc.data().body,
           userHandle: doc.data().userHandle,
-          createdAt: doc.data().createdAt
+          createdAt: doc.data().createdAt,
+          userImage: doc.data().userImage
         });
       });
       return res.json(screams);
@@ -77,7 +78,7 @@ exports.getScream = (req, res) => {
 //Comment on a scream
 exports.commentOnScream = (req, res) => {
   if (req.body.body.trim() === "")
-    return res.status(400).json({ error: "Must no be empty" });
+    return res.status(400).json({ comment: "Must no be empty" });
 
   const newComment = {
     body: req.body.body,
@@ -90,7 +91,7 @@ exports.commentOnScream = (req, res) => {
   db.doc(`/screams/${req.params.screamId}`)
     .get()
     .then(doc => {
-      if (!doc.exists) {
+      if (!doc.exists) {   
         return res.status(404).json({ error: "Scream not found" });
       }
       return doc.ref.update({ commentCount: doc.data().commentCount + 1 });
