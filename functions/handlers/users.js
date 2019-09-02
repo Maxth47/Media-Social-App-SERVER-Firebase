@@ -220,7 +220,7 @@ exports.uploadImage = (req, res) => {
 
         //get the extension and create a new name
         imageExtension = fileName.split(".")[fileName.split(".").length - 1];
-        const imageFileName = `${Math.round(
+        imageFileName = `${Math.round(
             Math.random() * 100000000000
         )}.${imageExtension}`;
 
@@ -250,7 +250,7 @@ exports.uploadImage = (req, res) => {
                     firebaseConfig.storageBucket
                     }/o/${imageFileName}?alt=media`;
                 return db.doc(`users/${req.user.handle}`).update({ imageUrl });
-            }) 
+            })
             .then(() => {
                 return res.json({ message: "Image uploaded successfully" });
             })
