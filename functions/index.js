@@ -16,6 +16,9 @@ const {
 } = require("./handlers/screams");
 const FBAuth = require("./util/fbAuth"); // Firebase Authentication Midleware to check if user already logined by using idToken
 
+const cors = require('cors')
+app.use(cors())
+
 app.get("/screams", getAllScreams); // get all database of screams and order by createdAt descendingly
 app.post("/scream", FBAuth, postOneScream); // Route to post New scream
 app.get("/scream/:screamId", getScream); // Route to post New scream
